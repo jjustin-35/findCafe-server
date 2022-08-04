@@ -20,7 +20,7 @@ const cafeSchema = new mongoose.Schema({
         maxLength: 12
     },
     address: {
-        city: {
+        country: {
             type: String,
             required: true,
             minLength: 2,
