@@ -6,7 +6,8 @@ const multer = require('multer');
 const upload = multer();
 const cors = require('cors');
 
-const route_data = require('./data/route_data');
+const route_data = require('./route/route_data');
+const route_auth = require('./route/route_auth');
 
 // models
 const models = require('./models/index');
@@ -25,6 +26,7 @@ app.use(cors());
 
 // self middleware
 app.use('/data', route_data);
+app.use('/auth', route_auth);
 
 app.get('/', (req, res) => {
     res.send('this is home page.')
@@ -36,20 +38,20 @@ app.post('/add_cafe', (req, res) => {
     const {name, branch, tel, price, address} = req.body;
 
     // // menu, img
-    // function pics(pic, theName) {
-    //     const array = [];
-    //     pic.forEach((element, i) => {
-    //         let obj = {};
-    //         obj[`${theName}Name`] = `${name}_${theName}_${i}`;
-    //         obj[`${theName}Pic`] = element;
+    function pics(pic, theName) {
+        const array = [];
+        pic.forEach((element, i) => {
+            let obj = {};
+            obj[`${theName}Name`] = `${name}_${theName}_${i}`;
+            obj[`${theName}Pic`] = element;
 
-    //         array.push(obj);
-    //     })
+            array.push(obj);
+        })
 
-    //     return array;
-    // }
-    // let menuArray = pics(menu, 'menu');
-    // let imgArray = pics(img, 'img');
+        return array;
+    }
+    let menuArray = pics(menu, 'menu');
+    let imgArray = pics(img, 'img');
 
     // // user
     // models.userModel.findOne({ user })
@@ -95,6 +97,8 @@ app.post('/add_cafe', (req, res) => {
     //     console.log('New comment is saved.');
     // })
 });
+
+
 
 app.listen(3600, () => {
     console.log('Server is running on port 3600.')
