@@ -1,5 +1,6 @@
-const cafeModel = require('./cafeModel');
-const userModel = require('./userModel');
-const commentMedel = require('./commentModel');
-
-module.exports = { userModel, cafeModel, commentMedel };
+module.exports = {
+    userModel: require('./userModel'),
+    cafeModel: require('./cafeModel'),
+    commentMedel: require('./commentModel'),
+    adminModel: require('./adminModel'),
+};

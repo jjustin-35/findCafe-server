@@ -1,67 +1,81 @@
 const router = require('express').Router();
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const passport = require('../config/passport');
+const { localUserValidation } = require('../config/validation');
+const uuidv4 = require('uuid').v4;
 
 // model
 const User = require('../models/index').userModel;
 
 // sign up
 router.post('/sign_up', async (req, res) => {
-    const {name, thumbnail, address, email, password } = req.body;
+    console.log(req.body);
+    const {email} = req.body;
     const result = await User.findOne({ email });
+    try {
+        if (!result) {
+            const userData = { ...req.body };
+            userData.id = uuidv4();
+            const { error } = localUserValidation(userData);
+            
+            if (error) return res.status(400).send(error.details[0].message);
 
-    if (!result) {
-        const newUser = new User({
-            name, thumbnail, address, email, password
-        });
-
-        newUser.save()
-            .then(() => {
-                res.json({
-                    saved: true,
-                    msg: 'User has been saved.'
-                });
+            const newUser = new User(userData);
+            newUser.save()
+                .then(() => {
+                    res.json({
+                        success: true,
+                        msg: 'User has been saved.'
+                    });
+                })
+        } else {
+            res.status(400).json({
+                success: false,
+                msg: 'User has existed.'
             })
-    } else {
-        res.status(400).json({
-            saved: false,
-            msg: 'User has existed.'
+        }
+    } catch (err) {
+        res.status(404).json({
+            success: false,
+            msg: 'something is wrong',
         })
     }
+    
+})
+router.get('/login', (req, res) => {
+    res.send('this is login')
+})
+// local login
+router.post('/login', passport.authenticate('local', {session: false}), (req, res) => {
+    const token = req.user.generateJWT();
+
+    res.status(200).json({
+        success: true,
+        token: `jwt ${token}`,
+        user: req.user
+    })
 })
 
-router.post('/login', (req, res) => {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    let authResult;
+// google login
+router.get('/google', passport.authenticate('google', { scope: ['email', 'profile'], }));
 
-    if (user) {
-        const { password } = user;
-        const hash = password;
-        let compare = await bcrypt.compare(password, hash);
-        if (compare) {
-            // 驗證成功
-            const token = await user.generateAuthToken();
+router.get('/google/callback', passport.authenticate('google', {session: false}), (req, res) => {
+    const token = req.user.generateJWT();
+    res.status(200).json({
+        success: true,
+        token: `jwt ${token}`
+    })
+})
 
-            res.json({
-                login: true,
-                msg: 'login success!',
-                token
-            })
-        } else {
-            authResult = false;
-        }
-    } else {
-        authResult = false;
-    }
+// fb
+router.get('/facebook', passport.authenticate('facebook', {scope: ['email', 'user_location']}))
 
-    if (!authResult) {
-        res.json({
-            login: false,
-            msg: 'Email/password is wrong. Please check your email/password.'
-        })
-    }
+router.get('/facebook/callback', passport.authenticate('facebook', {session: false}), (req, res) => {
+    const token = req.user.generateJWT();
+    res.status(200).json({
+        success: true,
+        token: `jwt ${token}`
+    })
 })
 
 module.exports = router;

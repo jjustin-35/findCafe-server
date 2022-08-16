@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -12,15 +13,13 @@ const userSchema = new mongoose.Schema({
         type: String,
     },
     address: {
-        city: {
+        country: {
             type: String,
-            required: true,
             minLength: 2,
             maxLength: 10,
         },
         district: {
             type: String,
-            required: true,
             minLength: 2,
             maxLength: 10,
         },
@@ -39,42 +38,41 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
         minLength: 8,
         maxLength: 1024,
     },
-    tokens: [{
-        token: {
-            type: String,
-            default: ""
-        }
-    }]
+    id: {
+        type: String,
+    }
 })
 
-userSchema.methods.hashPassword = async function(){
-    const hash = await bcrypt.hash(this.password, 10);
+userSchema.methods.hashPassword = async function () {
+    const user = this;
+    if (user.password === null) {
+        return "";
+    }
+    const hash = await bcrypt.hash(user.password, 10);
     this.password = hash;
 };
 
-// 建立 userSchema 實例(Document)能使用的方法：產生 JWT
-userSchema.methods.generateAuthToken = async function () {
-    // this 指向當前的使用者實例
-    const user = this
-    // 產生一組 JWT
-    const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
-    // 將該 token 存入資料庫中：讓使用者能跨裝置登入及登出
-    user.tokens = user.tokens.concat({ token });
-    // user是一個obj我當然能直接修改阿，改完再save就好啊
-    await user.save()
-    // 回傳 JWT
-    return token
-  }
-
-userSchema.pre('save', (next) => {
+userSchema.methods.verifyPassword = async function (password) {
     const user = this;
-    console.log(user.isModified('password'));
-    if (user.isModified()) {
-        user.hashPassword();
+    const isVerified = await bcrypt.compare(password, user.password);
+    return isVerified;
+}
+
+userSchema.methods.generateJWT = function () {
+    const user = this;
+    const payload = { id: user.id, email: user.email };
+    const token = jwt.sign(payload, process.env.PASSPORT_SECRET, { expiresIn: '1 day' });
+
+    return token;
+};
+
+userSchema.pre('save', async function(next) {
+    const user = this;
+    if (user.isModified('password')) {
+        await user.hashPassword();
     }
     console.log('User data is saving...');
     next();
