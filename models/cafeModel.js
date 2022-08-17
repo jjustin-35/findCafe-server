@@ -26,7 +26,7 @@ const cafeSchema = new mongoose.Schema({
             minLength: 2,
             maxLength: 10,
         },
-        district: {
+        districts: {
             type: String,
             required: true,
             minLength: 2,
@@ -40,15 +40,15 @@ const cafeSchema = new mongoose.Schema({
     },
     time: [{
         weekday: {
-            type: Date,
+            type: String,
             required: true,
         },
         open: {
-            type: Date,
+            type: String,
             required: true,
         },
         close: {
-            type: Date,
+            type: String,
             required: true,
         }
     }],
@@ -75,10 +75,24 @@ const cafeSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    comment: {
+    stars: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: 1,
+        required: true,
+    },
+    comment: [{
         type: Schema.Types.ObjectId,
         ref: 'Comment',
-    }
+    }]
 })
+
+// cafeSchema.methods.countStars = function () {
+//     const user = this;
+
+
+//     user.comment
+// }
 
 module.exports = mongoose.model('Cafe', cafeSchema);
