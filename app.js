@@ -49,7 +49,7 @@ app.get('*', (req, res) => {
     res.status(404).json('Cannot find the page');
 })
 
-app.listen(3600, () => {
+app.listen(process.env.PORT || 3600, () => {
     console.log('Server is running on port 3600.')
 })
 
