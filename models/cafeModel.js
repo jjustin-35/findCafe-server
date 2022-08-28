@@ -59,16 +59,16 @@ const cafeSchema = new mongoose.Schema({
         maxLength: 20,
     },
     menu: [{
-        menuName: {
+        name: {
             type: String,
         },
-        menuPic: {
+        pic: {
             type: String,
         },
     }],
     img: [{
-        imgName: String,
-        imgPic: String,
+        name: String,
+        pic: String,
     }],
     user: {
         type: Schema.Types.ObjectId,
