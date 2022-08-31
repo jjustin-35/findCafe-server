@@ -7,6 +7,20 @@ const uuidv4 = require('uuid').v4;
 // model
 const User = require('../models/index').userModel;
 
+// get user info
+router.post('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    const { _id } = req.body;
+
+    try {
+        const {password, ...user} = await User.findById(_id);
+        res.status(200).json({
+            user
+        });
+    } catch (err) {
+        res.status(404).send('Cannot find user');
+    }
+})
+
 // sign up
 router.post('/sign_up', async (req, res) => {
     console.log(req.body);
@@ -42,17 +56,16 @@ router.post('/sign_up', async (req, res) => {
     }
     
 })
-router.get('/login', (req, res) => {
-    res.send('this is login')
-})
+
 // local login
 router.post('/login', passport.authenticate('local', {session: false}), (req, res) => {
     const token = req.user.generateJWT();
+    const { _id } = req.user;
 
     res.status(200).json({
         success: true,
         token: `jwt ${token}`,
-        user: req.user
+        user: _id
     })
 })
 
@@ -77,5 +90,7 @@ router.get('/facebook/callback', passport.authenticate('facebook', {session: fal
         token: `jwt ${token}`
     })
 })
+
+// changepwd
 
 module.exports = router;
