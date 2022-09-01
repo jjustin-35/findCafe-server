@@ -92,5 +92,18 @@ router.get('/facebook/callback', passport.authenticate('facebook', {session: fal
 })
 
 // changepwd
+router.patch('/change_pwd', passport.authenticate('jwt', { session: false }), async(req, res) => {
+    const { email, _id, password } = req.body;
+    const filter = email || _id;
+    let user = await User.findOne({filter});
+
+    if (!user) {
+        res.status(404).send('Cannot find user');
+    }
+
+    user.password = password;
+    await user.save();
+    res.status(200).send('finish changing the pwd.');
+})
 
 module.exports = router;
