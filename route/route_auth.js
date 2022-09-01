@@ -60,12 +60,12 @@ router.post('/sign_up', async (req, res) => {
 // local login
 router.post('/login', passport.authenticate('local', {session: false}), (req, res) => {
     const token = req.user.generateJWT();
-    const { _id } = req.user;
+    const { password, ...user } = req.user;
 
     res.status(200).json({
         success: true,
         token: `jwt ${token}`,
-        user: _id
+        user: user
     })
 })
 
