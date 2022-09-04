@@ -58,9 +58,9 @@ router.post('/sign_up', async (req, res) => {
 })
 
 // local login
-router.post('/login', passport.authenticate('local', {session: false}), (req, res) => {
+router.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
     const token = req.user.generateJWT();
-    const { password, ...user } = req.user;
+    const { password, ...user } = req.user.toObject();
 
     res.status(200).json({
         success: true,
