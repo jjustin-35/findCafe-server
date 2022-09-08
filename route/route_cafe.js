@@ -14,6 +14,52 @@ const client = new imgur.ImgurClient({
     refreshToken: process.env.REFRESH_TOKEN,
 })
 
+let lastId;
+
+router.get('/', async (req, res) => {
+    let { perPage = 15, page = 1, sort, ...query } = req.query;
+
+    const condition = {};
+    for (let prop in query) {
+        const re = new RegExp("\\$gte|\\$lte|\\$gt|\\$lt", "g");
+        let match = query[prop].match(re);
+        if (match) {
+            const situation = {};
+            let num = query[prop].replace(match, "");
+            situation[match] = Math.round(Number(num));
+            console.log(situation);
+            query[prop] = situation;
+        }
+        condition[prop] = query[prop];
+    }
+
+    let cafe;
+    // sort
+    // descending
+    let sorty = '-stars';
+    if (sort) {
+        // ascending
+        if (sort == 'asc') {
+            sorty = 'stars'
+        }
+    }
+    // pagination
+    try {
+        if (page == 1) {
+            cafe = await Cafe.find(condition).limit(perPage).sort(sorty);
+        } else {
+            condition._id = {$gt: lastId};
+            cafe = await Cafe.find(condition).limit(perPage).sort(sorty);
+        }
+        lastId = cafe[cafe.length - 1]._id;
+
+        res.json(cafe);
+    }catch (err) {
+        console.log(err);
+        res.status(404).send('Cannot find result.');
+    }    
+})
+
 router.post('/add', passport.authenticate('jwt', {session: false}), async (req, res) => {
 
     const {name, branch, tel, price, address, time, stars, user, menu, pics} = req.body;
@@ -83,45 +129,5 @@ router.post('/add', passport.authenticate('jwt', {session: false}), async (req, 
     newCafe.save()
         .then(()=>{console.log('cafe has been saved.')})
 });
-
-router.get('/find', async (req, res) => {
-    let { perPage, page, sort, ...anotherQuery } = req.query;
-    if (!page) {
-        page = 1;
-    }
-    if (!perPage) {
-        perPage = 15
-    }
-
-    const condition = {};
-    for (let prop in anotherQuery) {
-        condition[prop] = anotherQuery[prop];
-    }
-
-    let lastId;
-    let cafe;
-    // sort
-    let sorty = 'stars';
-    if (sort) {
-        if (sort == 'lessFirst') {
-            sorty = '-stars'
-        }
-    }
-    // pagination
-    try {
-        if (page == 1) {
-            cafe = await Cafe.find(condition).limit(perPage).sort(sorty);
-        } else {
-            condition._id = {$gt: lastId};
-            cafe = await Cafe.find(condition).limit(perPage).sort(sorty);
-        }
-        lastId = cafe[cafe.length - 1]._id;
-
-        res.json(cafe);
-    }catch (err) {
-        console.log(err);
-        res.status(404).send('Cannot find result.');
-    }    
-})
 
 module.exports = router;

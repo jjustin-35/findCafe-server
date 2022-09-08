@@ -14,7 +14,7 @@ const route_cafe = require('./route/route_cafe');
 // models
 const models = require('./models/index');
 
-mongoose.connect(process.env.MONGODB_URL, () => {
+mongoose.connect(process.env.MONGODB_URL, (err) => {
     if (err) { console.log(err) } else {
         console.log('mongoose is connected.')
     }
