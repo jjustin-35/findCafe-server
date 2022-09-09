@@ -14,10 +14,8 @@ const client = new imgur.ImgurClient({
     refreshToken: process.env.REFRESH_TOKEN,
 })
 
-let lastId;
-
 router.get('/', async (req, res) => {
-    let { perPage = 15, page = 1, sort, ...query } = req.query;
+    let { perPage = 15, page = 0, sort, ...query } = req.query;
 
     const condition = {};
     for (let prop in query) {
@@ -45,15 +43,10 @@ router.get('/', async (req, res) => {
     }
     // pagination
     try {
-        if (page == 1) {
-            cafe = await Cafe.find(condition).limit(perPage).sort(sorty);
-        } else {
-            condition._id = {$gt: lastId};
-            cafe = await Cafe.find(condition).limit(perPage).sort(sorty);
-        }
-        lastId = cafe[cafe.length - 1]._id;
+        cafe = await Cafe.find(condition).limit(perPage).sort(sorty).skip(perPage * page);
 
         res.json(cafe);
+
     }catch (err) {
         console.log(err);
         res.status(404).send('Cannot find result.');
