@@ -16,20 +16,50 @@ const client = new imgur.ImgurClient({
 
 router.get('/', async (req, res) => {
     let { perPage = 15, page = 0, sort, ...query } = req.query;
-
+    
     const condition = {};
+    const isEmpty = (obj) => {
+        for (let i in obj) {
+            return false
+        }
+
+        return true;
+    }
+    
     for (let prop in query) {
         const re = new RegExp("\\$gte|\\$lte|\\$gt|\\$lt", "g");
-        let match = query[prop].match(re);
+        let match;
+        console.log(prop, query[prop])
+        if (!prop) {
+            continue;
+        }
+
+        if (prop === "stars") {
+            query[prop] = { $in: [...query[prop]] };
+        }
+        
+        if (typeof query[prop] === "string") {
+            match = query[prop].match(re);
+        }
+        
         if (match) {
             const situation = {};
             let num = query[prop].replace(match, "");
             situation[match] = Math.round(Number(num));
-            console.log(situation);
+
             query[prop] = situation;
+        } else {
+            if (prop.match(/country|districts|location|mrt/g)) {
+                
+                condition[`address.${prop}`] = query[prop];
+
+                continue;
+            }
         }
         condition[prop] = query[prop];
     }
+
+    console.log(condition)
 
     let cafe;
     // sort
