@@ -83,6 +83,24 @@ router.get('/', async (req, res) => {
     }    
 })
 
+router.get('/:cafe', async (req, res) => {
+    const param = req.params.cafe;
+    console.log(param)
+
+    try{
+        const cafe = await Cafe.findOne({ name: {$regex: param} });
+
+        if (cafe) {
+            res.json(cafe);
+        } else {
+            res.send("cannot find")
+        };
+    } catch (err) {
+        console.log(err)
+        res.status(404).send("something wrong");
+    }
+})
+
 router.post('/add', passport.authenticate('jwt', {session: false}), async (req, res) => {
 
     const {name, branch, tel, price, address, time, stars, user, menu, pics} = req.body;
