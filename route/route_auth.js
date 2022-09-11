@@ -21,6 +21,11 @@ router.post('/', passport.authenticate('jwt', { session: false }), async (req, r
     }
 })
 
+// check
+router.get('/check', passport.authenticate('jwt', { session: false }), (req, res) => {
+    res.json({isAuth: true});
+})
+
 // sign up
 router.post('/sign_up', async (req, res) => {
     console.log(req.body);
