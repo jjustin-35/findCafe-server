@@ -83,8 +83,8 @@ router.get('/', async (req, res) => {
     try {
         cafe = await Cafe.find(condition).limit(perPage).sort(sorty).skip(perPage * page);
 
-        cafe.length = length;
-        res.json(cafe);
+        const cafeRes = { cafes: cafe, length };
+        res.json(cafeRes);
 
     }catch (err) {
         console.log(err);
