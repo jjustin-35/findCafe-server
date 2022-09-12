@@ -35,7 +35,13 @@ router.get('/', async (req, res) => {
         }
 
         if (prop === "star") {
-            query[prop] = { $in: [...query[prop]] };
+            let starQuery = [];
+            console.log(query[prop])
+            for (let i of query[prop]) {
+                starQuery.push(Number(i));
+            }
+            prop = "stars";
+            query[prop] = { $in: starQuery };
         }
         
         if (typeof query[prop] === "string") {
