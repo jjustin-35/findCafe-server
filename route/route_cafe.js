@@ -15,7 +15,7 @@ const client = new imgur.ImgurClient({
 })
 
 router.get('/', async (req, res) => {
-    let { perPage = 15, page = 0, sort , ...query } = req.query;
+    let { perPage, page = 0, sort , ...query } = req.query;
     
     const condition = {};
     const isEmpty = (obj) => {
@@ -86,7 +86,12 @@ router.get('/', async (req, res) => {
     
     // pagination
     try {
-        cafe = await Cafe.find(condition).limit(perPage).sort(sorty).skip(perPage * page);
+        if (perPage && page) {
+            cafe = await Cafe.find(condition).limit(perPage).sort(sorty).skip(perPage * page);
+        } else {
+            cafe = await Cafe.find(condition).sort(sorty)
+        }
+        
 
         const cafeRes = { cafes: cafe, length };
         res.json(cafeRes);
