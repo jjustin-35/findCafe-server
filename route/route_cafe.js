@@ -34,6 +34,15 @@ router.get('/', async (req, res) => {
             continue;
         }
 
+        let ranks = ['wifi', 'seat', 'quiet', 'tasty', 'cheap', 'music'];
+        let value = query[prop];
+        for (let rank of ranks) {
+            if (prop === rank) {
+                prop = "rank." + prop;
+            }
+        }
+        query[prop] = value;
+
         if (prop === "star") {
             let starQuery = [];
             console.log(query[prop])
