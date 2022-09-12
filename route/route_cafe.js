@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
             continue;
         }
 
-        if (prop === "stars") {
+        if (prop === "star") {
             query[prop] = { $in: [...query[prop]] };
         }
         
