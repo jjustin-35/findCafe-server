@@ -35,7 +35,7 @@ app.use(passport.initialize());
 app.use('/data', route_data);
 app.use('/auth', route_auth);
 app.use('/cafe', route_cafe);
-app.use('/comment', passport.authenticate('jwt', {session: false}), route_comment);
+app.use('/comment', route_comment);
 
 app.get('/', (req, res) => {
     res.send('this is home page.')

@@ -28,7 +28,7 @@ router.get('/:cafe', async (req, res) => {
     res.json(comments);
 })
 
-router.post('/add', async (req, res) => {
+router.post('/add', passport.authenticate('jwt', {session: false}), async (req, res) => {
     try {
         const {cafe, user, stars, tags, post } = req.body;
 
