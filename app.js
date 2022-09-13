@@ -26,7 +26,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(upload.array());
-// cors 預設不開放(不開放非相同網域獲取資料)，需要引入cors package(預設全開放)
+// cors 預設不開放(不開放非相同網域獲取資料)，需要引入cors package(預設全開放) 
 app.use(cors());
 // 初始化passport、保持login state
 app.use(passport.initialize());
