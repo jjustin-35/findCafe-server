@@ -92,9 +92,6 @@ const cafeSchema = new mongoose.Schema({
     }]
 })
 
-// cafeSchema.methods.countStars = function () {
-//     const user = this;
-
 
 //     user.comment
 // }

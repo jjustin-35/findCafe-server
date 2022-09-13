@@ -34,6 +34,13 @@ router.get('/', async (req, res) => {
             continue;
         }
 
+        if (prop === "keyword") {
+            const re = new RegExp(query[prop])
+            condition.keyword = {$or: [{name: { $regex: re, $options: "g" }}, {"address.country": { $regex: re, $options: "g" }}, {"address.districts": { $regex: re, $options: "g" }}, {"address.location": { $regex: re, $options: "g" }}, {"address.mrt": { $regex: re, $options: "g" }}]};
+
+            continue;
+        }
+
         let ranks = ['wifi', 'seat', 'quiet', 'tasty', 'cheap', 'music'];
         let value = query[prop];
         for (let rank of ranks) {
@@ -93,7 +100,13 @@ router.get('/', async (req, res) => {
     }
     // length
     let length = 0;
-    const array = await Cafe.find(condition);
+    const { keyword, ...conditions } = condition;
+    let theCondition = conditions;
+    if (keyword) {
+        theCondition = {$and: [keyword, conditions]}
+    }
+   
+    const array = await Cafe.find(theCondition);
     if (array) {
         length = array.length;
     }
@@ -101,9 +114,9 @@ router.get('/', async (req, res) => {
     // pagination
     try {
         if (perPage && page) {
-            cafe = await Cafe.find(condition).limit(perPage).sort(sorty).skip(perPage * page);
+            cafe = await Cafe.find(theCondition).limit(perPage).sort(sorty).skip(perPage * page);
         } else {
-            cafe = await Cafe.find(condition).sort(sorty)
+            cafe = await Cafe.find(theCondition).sort(sorty)
         }
         
 
