@@ -65,8 +65,13 @@ router.get('/', async (req, res) => {
             query[prop] = situation;
         } else {
             if (prop.match(/country|districts|location|mrt/g)) {
+                let content = query[prop];
+                if (prop === "mrt") {
+                    let re = new RegExp(query[prop]);
+                    content = { $regex: re, $options: "g" };
+                }
                 
-                condition[`address.${prop}`] = query[prop];
+                condition[`address.${prop}`] = content;
 
                 continue;
             }

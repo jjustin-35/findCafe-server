@@ -3,9 +3,6 @@ const Comment = require('../models').commentMedel;
 const User = require('../models').userModel;
 const Cafe = require('../models').cafeModel;
 
-router.use((req, res, next) => {
-    
-})
 
 router.get('/:cafe', async (req, res) => {
     const { cafe } = req.params;

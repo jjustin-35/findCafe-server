@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { Schema } = require('mongoose');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -43,7 +44,11 @@ const userSchema = new mongoose.Schema({
     },
     id: {
         type: String,
-    }
+    },
+    myCoffee: [{
+        type: Schema.Types.ObjectId,
+        ref: "Cafe"
+    }]
 })
 
 userSchema.methods.hashPassword = async function () {
