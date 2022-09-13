@@ -25,6 +25,11 @@ const commentSchema = new mongoose.Schema({
     },
     post: {
         type: String,
+    },
+    time: {
+        type: Date,
+        default: Date.now(),
+        required: true,
     }
 })
 

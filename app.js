@@ -10,6 +10,7 @@ const passport = require('./config/passport');
 const route_data = require('./route/route_data');
 const route_auth = require('./route/route_auth');
 const route_cafe = require('./route/route_cafe');
+const route_comment = require('./route/route_comment');
 
 // models
 const models = require('./models/index');
@@ -34,6 +35,8 @@ app.use(passport.initialize());
 app.use('/data', route_data);
 app.use('/auth', route_auth);
 app.use('/cafe', route_cafe);
+app.use('/comment', route_comment);
+// passport.authenticate('jwt', {session: false}),
 
 app.get('/', (req, res) => {
     res.send('this is home page.')

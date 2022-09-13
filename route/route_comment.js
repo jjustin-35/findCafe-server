@@ -8,9 +8,12 @@ router.get('/:cafe', async (req, res) => {
     const { cafe } = req.params;
     const { sort, ...otherQuery } = req.query;
 
+    const re = new RegExp(cafe);
+
     const condition = {};
 
-    condition.cafe = cafe;
+    condition.cafe = await Cafe.findOne({ name: {$regex: re, $options: "g"} });
+    if (!condition.cafe) { res.status(404).send("cannot find") };
     for (let prop in otherQuery) {
         condition[prop] = otherQuery[prop]
     }
@@ -20,20 +23,35 @@ router.get('/:cafe', async (req, res) => {
         sorty='-stars'
     }
 
-    let comments = await Comment.find(condition).limit(5).sort(sorty);
+    let comments = await Comment.find(condition).sort(sorty).populate('user');
+
+    res.json(comments);
 })
 
-router.post('/:cafe/add', async (req, res) => {
-    const { cafe } = req.params;
-    const { user, stars, tags, post } = req.body;
+router.post('/add', async (req, res) => {
+    try {
+        const {cafe, user, stars, tags, post } = req.body;
 
-    let newComment = await new Comment({
-        cafe, user, stars, tags, post
-    });
+        const theCafe = await Cafe.findById(cafe);
+        const cafeId = theCafe._id;
 
-    await newComment.save();
-})
+        const theUser = await User.findOne({ email: user });
+        const userId = theUser._id;
 
-router.put('/:cafe/edit', (req, res) => {
+        let newComment = new Comment({
+        cafe: cafeId, user: userId, stars, tags, post
+        });
+
+        await newComment.save();
     
+        theUser.comment.push(newComment);
+        await theUser.save();
+        
+        res.send("add success");
+    } catch (err) {
+        console.log(err)
+        res.status(404).send("error")
+    }
 })
+
+module.exports = router;
