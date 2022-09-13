@@ -2,6 +2,7 @@ const router = require('express').Router();
 const Comment = require('../models').commentMedel;
 const User = require('../models').userModel;
 const Cafe = require('../models').cafeModel;
+const passport = require('../config/passport');
 
 
 router.get('/:cafe', async (req, res) => {
