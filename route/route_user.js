@@ -3,6 +3,13 @@ const mongoose = require('mongoose');
 const passport = require('../config/passport');
 const { localUserValidation } = require('../config/validation');
 const uuidv4 = require('uuid').v4;
+const imgur = require('imgur');
+
+const client = new imgur.ImgurClient({
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    refreshToken: process.env.REFRESH_TOKEN,
+})
 
 // model
 const User = require('../models/index').userModel;
@@ -12,12 +19,51 @@ router.post('/', passport.authenticate('jwt', { session: false }), async (req, r
     const { _id } = req.body;
 
     try {
-        const {password, ...user} = await User.findById(_id);
+        const {password, ...user} = await User.findOne({_id});
+        console.log(user)
         res.status(200).json({
             user
         });
     } catch (err) {
         res.status(404).send('Cannot find user');
+    }
+})
+
+router.patch('/user', passport.authenticate('jwt', { session: false }), async (req, res) => {
+
+    async function uploadImgur(base64, name) {
+        base64 = base64.replace(/^data:image\/[a-z]+;base64,/, "");
+        const response = await client.upload({
+            image: base64,
+            album: "CRPIQHY",
+            title: name,
+            name: name,
+            type: 'base64',
+        })
+        const { link } = response.data;
+        
+        return link;
+    }
+
+    try {
+        const newProfile = req.body;
+        const { _id, data } = newProfile;
+
+        if (data.thumbnail) {
+            data.thumbnail = await uploadImgur(data.thumbnail, _id)
+        }
+
+        console.log(_id, data)
+
+        const result = await User.findOneAndUpdate({ _id }, data, {
+            new: true
+        });
+
+        console.log(result)
+
+        res.send("update success")
+    } catch (err) {
+        res.status(400).send("Cannot patch profile")
     }
 })
 
@@ -66,6 +112,8 @@ router.post('/sign_up', async (req, res) => {
 router.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
     const token = req.user.generateJWT();
     const { password, ...user } = req.user.toObject();
+
+    console.log(user);
 
     res.status(200).json({
         success: true,

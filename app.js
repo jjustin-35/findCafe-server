@@ -8,7 +8,7 @@ const cors = require('cors');
 const passport = require('./config/passport');
 
 const route_data = require('./route/route_data');
-const route_auth = require('./route/route_auth');
+const route_user = require('./route/route_user');
 const route_cafe = require('./route/route_cafe');
 const route_comment = require('./route/route_comment');
 
@@ -33,7 +33,7 @@ app.use(passport.initialize());
 
 // route
 app.use('/data', route_data);
-app.use('/auth', route_auth);
+app.use('/auth', route_user);
 app.use('/cafe', route_cafe);
 app.use('/comment', route_comment);
 

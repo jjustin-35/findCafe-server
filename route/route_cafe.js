@@ -18,13 +18,13 @@ router.get('/', async (req, res) => {
     let { perPage, page = 0, sort , ...query } = req.query;
     
     const condition = {};
-    const isEmpty = (obj) => {
-        for (let i in obj) {
-            return false
-        }
+    // const isEmpty = (obj) => {
+    //     for (let i in obj) {
+    //         return false
+    //     }
 
-        return true;
-    }
+    //     return true;
+    // }
     
     for (let prop in query) {
         const re = new RegExp("\\$gte|\\$lte|\\$gt|\\$lt", "g");

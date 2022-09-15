@@ -24,7 +24,7 @@ passport.use(new LocalStrategy({
     passReqToCallback: true 
 }, async (req, email, password, done) => {
     try {
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email }).populate('comment');
         if (!user) {
             return done(null, false, { message: 'Email/password is wrong.' });
         } else {

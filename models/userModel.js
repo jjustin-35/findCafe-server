@@ -47,7 +47,11 @@ const userSchema = new mongoose.Schema({
     },
     comment: [{
         type: Schema.Types.ObjectId,
-        ref: "Comment"
+        ref: "Comment",
+    }],
+    myFav: [{
+        type: Schema.Types.ObjectId,
+        ref: "Cafe",
     }],
     myCoffee: [{
         type: Schema.Types.ObjectId,
