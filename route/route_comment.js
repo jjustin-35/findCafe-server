@@ -25,8 +25,7 @@ router.get('/:cafe', async (req, res) => {
     }
 
     let comments = await Comment.find(condition).sort(sorty).populate('user');
-    delete comments.user.password;
-
+    
     res.json(comments);
 })
 
