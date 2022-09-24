@@ -24,9 +24,8 @@ router.get('/:cafe', async (req, res) => {
         sorty='-stars'
     }
 
-    let comments = await Comment.find(condition).sort(sorty).populate('user');
-    comments[0].user.password = undefined;
-    
+    let comments = await Comment.find(condition).sort(sorty).populate('user', ["name", "email", "thumbnail"]);
+
     res.json(comments);
 })
 
