@@ -3,6 +3,7 @@ const Comment = require('../models').commentMedel;
 const User = require('../models').userModel;
 const Cafe = require('../models').cafeModel;
 const passport = require('../config/passport');
+const { findOneAndDelete } = require('../models/adminModel');
 
 
 router.get('/:cafe', async (req, res) => {
@@ -29,7 +30,7 @@ router.get('/:cafe', async (req, res) => {
     res.json(comments);
 })
 
-router.post('/add', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.post('/set', passport.authenticate('jwt', {session: false}), async (req, res) => {
     try {
         const {cafe, user, stars, tags, post } = req.body;
 
@@ -53,6 +54,35 @@ router.post('/add', passport.authenticate('jwt', {session: false}), async (req, 
         console.log(err)
         res.status(404).send("error")
     }
+})
+
+router.put('/set', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    const data = req.body;
+    const { _id } = data;
+    data.time = Date.now();
+    try {
+        const comment = await Comment.findOneAndReplace({ _id }, data);
+        console.log(comment);
+
+        res.send("success")
+    } catch (err) {
+        console.log(err)
+        res.status(400).send("error");
+    }
+})
+
+router.delete('/set', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    const data = req.body;
+    const { _id } = data;
+    try {
+        const result = await Comment.findOneAndDelete({ _id });
+        console.log(result);
+        res.send("success")
+    } catch (err) {
+        console.log(err);
+        res.status(400).send("failed")
+    }
+    
 })
 
 module.exports = router;
